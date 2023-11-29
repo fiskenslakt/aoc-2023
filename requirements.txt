@@ -1,0 +1,4 @@
+advent-of-code-data==2.0.1
+browser-cookie3==0.19.1
+more-itertools==10.1.0
+pudb==2023.1
