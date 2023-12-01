@@ -1,65 +1,32 @@
-from aocd import data, submit
+import re
 
-# import pudb;pu.db
+from aocd import data
 
+digit_pattern = re.compile(r'([1-9]).*([1-9])')
+numeral_pattern = re.compile(r'([1-9]|one|two|three|four|five|six|seven|eight|nine).*'
+                                '([1-9]|one|two|three|four|five|six|seven|eight|nine)')
+numbers = {
+    'one': '1',
+    'two': '2',
+    'three': '3',
+    'four': '4',
+    'five': '5',
+    'six': '6',
+    'seven': '7',
+    'eight': '8',
+    'nine': '9',
+}
 
-# data = '''1abc2
-# pqr3stu8vwx
-# a1b2c3d4e5f
-# treb7uchet'''
-
-# data = '''two1nine
-# eightwothree
-# abcone2threexyz
-# xtwone3four
-# 4nineeightseven2
-# zoneight234
-# 7pqrstsixteen'''
-
-numbers = [
-    'one',
-    'two',
-    'three',
-    'four',
-    'five',
-    'six',
-    'seven',
-    'eight',
-    'nine'
-]
-
-x = []
+wrong_values = []
+right_values = []
 for line in data.splitlines():
-    # if line == 'cbcvd9':
-    #     import pudb;pu.db
-    f = None
-    L = None
-    fn = (float('inf'), None)
-    Ln = (-1, None)
-    for n in numbers:
-        if (idx := line.find(n)) >= 0:
-            if idx < fn[0]:
-                fn = (idx, n)
-            if idx > Ln[0]:
-                Ln = (idx, n)
+    if match := digit_pattern.search(line * 2):
+        wrong_values.append(int(match[1] + match[2]))
 
-    for i, c in enumerate(line):
-        if c.isdigit():
-            if f is None and i < fn[0]:
-                f = c
-            elif i > Ln[0]:
-                L = c
+    if match := numeral_pattern.search(line * 2):
+        first = numbers.get(match[1], match[1])
+        last = numbers.get(match[2], match[2])
+        right_values.append(int(first + last))
 
-    if f is None:
-        f = str(numbers.index(fn[1]) + 1)
-    if L is None and Ln[1] is not None:
-        L = str(numbers.index(Ln[1]) + 1)
-
-
-    if L is not None:
-        x.append(int(f+L))
-    else:
-        x.append(int(f+f))
-
-# print(x)
-submit(sum(x))
+print('Part 1:', sum(wrong_values))
+print('Part 2:', sum(right_values))
