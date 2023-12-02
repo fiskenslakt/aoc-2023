@@ -19,6 +19,7 @@ red_p = re.compile(r'(\d+)\sred')
 green_p = re.compile(r'(\d+)\sgreen')
 
 valid_games = []
+powers = []
 
 for game in data.splitlines():
     valid = True
@@ -26,6 +27,9 @@ for game in data.splitlines():
     gid = gid.split()[1]
     # if gid == '3':
     #     import pudb;pu.db
+    min_blue = 0
+    min_red = 0
+    min_green = 0
 
     sets = cubes.split('; ')
     for s in sets:
@@ -46,7 +50,15 @@ for game in data.splitlines():
 
         if b_cubes > MAX_BLUE or r_cubes > MAX_RED or g_cubes > MAX_GREEN:
             valid = False
-            break
+            # break
+
+        min_blue = max(min_blue, b_cubes)
+        min_red = max(min_red, r_cubes)
+        min_green = max(min_green, g_cubes)
+
+    power = min_blue * min_red * min_green
+    powers.append(power)
+
 
     if not valid:
         continue
@@ -55,4 +67,7 @@ for game in data.splitlines():
 
 # print(valid_games)
 # print(sum(valid_games))
-submit(sum(valid_games))
+# submit(sum(valid_games))
+# print(powers)
+# print(sum(powers))
+submit(sum(powers))
