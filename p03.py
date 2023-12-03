@@ -1,64 +1,47 @@
 import re
 
-from aocd import data, submit
+from aocd import data
 
-# data = '''467..114..
-# ...*......
-# ..35..633.
-# ......#...
-# 617*......
-# .....+.58.
-# ..592.....
-# ......755.
-# ...$.*....
-# .664.598..'''
-
-# import pudb;pu.db
-neighbors = ((0,1), (1,0), (1, 1), (-1, 0), (0, -1), (-1, -1), (1,-1), (-1, 1))
-part_numbers = []
 grid = data.splitlines()
-schematic_width = len(grid[0])
-schematic_height = len(grid)
-for m in re.finditer('\d+', data.replace('\n', '')):
-    # if m[0] == '633':
-    #     import pudb;pu.db
-    y = m.start() // schematic_width
-    x = m.start() % schematic_width
-    for offset in range(m.end() - m.start()):
-        for i, j in neighbors:
+
+SCHEMATIC_WIDTH = len(grid[0])
+SCHEMATIC_HEIGHT = len(grid)
+NEIGHBORS = ((0,1), (1,0), (1, 1), (-1, 0), (0, -1), (-1, -1), (1,-1), (-1, 1))
+
+part_numbers = []
+pn_coords = {}
+
+for match in re.finditer(r'\d+', data.replace('\n', '')):
+    y = match.start() // SCHEMATIC_WIDTH
+    x = match.start() % SCHEMATIC_HEIGHT
+    for offset in range(match.end() - match.start()):
+        for i, j in NEIGHBORS:
             nx = x + i + offset
             ny = y + j
 
-            if nx < 0 or nx > schematic_width - 1:
+            if nx < 0 or nx > SCHEMATIC_WIDTH - 1:
                 continue
-            if ny < 0 or ny > schematic_height - 1:
+            if ny < 0 or ny > SCHEMATIC_HEIGHT - 1:
                 continue
 
             if not (cell := grid[ny][nx]).isdigit() and cell != '.':
-                part_numbers.append(m)
+                part_numbers.append(match)
+                pn_y = match.start() // SCHEMATIC_WIDTH
+                pn_x = match.start() % SCHEMATIC_HEIGHT
+                for offset in range(match.end() - match.start()):
+                    pn_coords[(pn_x+offset, pn_y)] = match
                 break
         else:
             continue
         break
 
-# print(part_numbers)
-# print(sum(part_numbers))
-pn_coords = {}
-for pn in part_numbers:
-    pn_y = pn.start() // schematic_width
-    pn_x = pn.start() % schematic_height
-    for offset in range(pn.end() - pn.start()):
-        pn_coords[(pn_x+offset, pn_y)] = pn
-
 gear_ratios = []
-
-for m in re.finditer('\*', data.replace('\n', '')):
-    y = m.start() // schematic_width
-    x = m.start() % schematic_height
+for match in re.finditer(r'\*', data.replace('\n', '')):
+    y = match.start() // SCHEMATIC_WIDTH
+    x = match.start() % SCHEMATIC_HEIGHT
 
     adj = set()
-
-    for i, j in neighbors:
+    for i, j in NEIGHBORS:
         nx = x + i
         ny = y + j
 
@@ -69,5 +52,5 @@ for m in re.finditer('\*', data.replace('\n', '')):
         ratio = int(adj.pop()[0]) * int(adj.pop()[0])
         gear_ratios.append(ratio)
 
-# print(gear_ratios)
-submit(sum(gear_ratios))
+print('Part 1:', sum(map(lambda pn: int(pn[0]), part_numbers)))
+print('Part 2:', sum(gear_ratios))
