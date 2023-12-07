@@ -1,13 +1,6 @@
-from collections import Counter, deque
-# import pudb;pu.db
+from collections import Counter
 
-from aocd import data, submit
-
-# data = '''32T3K 765
-# T55J5 684
-# KK677 28
-# KTJJT 220
-# QQQJA 483'''
+from aocd import data
 
 card_values = {
     'A': 14,
@@ -25,36 +18,31 @@ card_values = {
     '2': 2,
 }
 
+
 def hand_type(hand):
     h = list(Counter(hand).values())
 
     if 5 in h:
-        return 7  # 5oak
+        return 7  # five of a kind
     elif 4 in h and 1 in h:
-        return 6  # 4oak
+        return 6  # four of a kind
     elif 3 in h and 2 in h:
-        return 5  # fh
+        return 5  # full house
     elif 3 in h and h.count(1) == 2:
-        return 4  # 3oak
+        return 4  # three of a kind
     elif h.count(2) == 2 and 1 in h:
-        return 3  # 2p
+        return 3  # two pair
     elif h.count(1) == 3 and 2 in h:
-        return 2  # 1p
+        return 2  # one pair
     else:
-        return 1  # hc
+        return 1  # high card
 
 
-def f(hand):
+def normal_sort(hand):
     return hand_type(hand), [card_values[c] for c in hand]
 
 
-# def bfs(hand):
-#     card_values = card_values.copy()
-#     del card_values['J']
-
-
-def g(hand):
-    # import pudb;pu.db
+def joker_sort(hand):
     ncard_values = card_values.copy()
     ncard_values['J'] = 1
     h = Counter(hand.replace('J', ''))
@@ -69,23 +57,17 @@ def g(hand):
 
 hands = [(line.split()[0], int(line.split()[1])) for line in data.splitlines()]
 
-# for hand, bid in hands:
-#     print(hand, bid)
+hands.sort(key=lambda h: normal_sort(h[0]))
 
-hands.sort(key=lambda h: f(h[0]))
-# print()
 winnings = 0
 for i, (hand, bid) in enumerate(hands, 1):
-    # print(i, hand, bid)
     winnings += bid * i
 
 print('Part 1:', winnings)
 
-hands.sort(key=lambda h: g(h[0]))
+hands.sort(key=lambda h: joker_sort(h[0]))
 winnings = 0
 for i, (hand, bid) in enumerate(hands, 1):
-    # print(i, hand, bid)
     winnings += bid * i
 
 print('Part 2:', winnings)
-submit(winnings)
