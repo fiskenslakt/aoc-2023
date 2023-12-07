@@ -1,5 +1,4 @@
-import re
-from collections import Counter
+from collections import Counter, deque
 # import pudb;pu.db
 
 from aocd import data, submit
@@ -48,6 +47,26 @@ def hand_type(hand):
 def f(hand):
     return hand_type(hand), [card_values[c] for c in hand]
 
+
+# def bfs(hand):
+#     card_values = card_values.copy()
+#     del card_values['J']
+
+
+def g(hand):
+    # import pudb;pu.db
+    ncard_values = card_values.copy()
+    ncard_values['J'] = 1
+    h = Counter(hand.replace('J', ''))
+    c = h.most_common(2)
+    if len(c) == 2 and c[0][1] > c[1][1]:
+        fake_hand = hand.replace('J', c[0][0])
+    else:
+        fake_hand = hand.replace('J', max(hand, key=lambda c: ncard_values[c]))
+
+    return hand_type(fake_hand), [ncard_values[c] for c in hand]
+
+
 hands = [(line.split()[0], int(line.split()[1])) for line in data.splitlines()]
 
 # for hand, bid in hands:
@@ -60,4 +79,13 @@ for i, (hand, bid) in enumerate(hands, 1):
     # print(i, hand, bid)
     winnings += bid * i
 
+print('Part 1:', winnings)
+
+hands.sort(key=lambda h: g(h[0]))
+winnings = 0
+for i, (hand, bid) in enumerate(hands, 1):
+    # print(i, hand, bid)
+    winnings += bid * i
+
+print('Part 2:', winnings)
 submit(winnings)
