@@ -9,18 +9,14 @@ node_p = re.compile(r'\w+')
 graph = {}
 for node in nodes.splitlines():
     src, left, right = node_p.findall(node)
-    graph[src] = (left, right)
+    graph[src] = {'L': left, 'R': right}
 
 
-def camel_walk(start):
-    cur_node = start
+def camel_walk(node):
     for steps, i in enumerate(cycle(instructions), 1):
-        if i == 'L':
-            cur_node = graph[cur_node][0]
-        elif i == 'R':
-            cur_node = graph[cur_node][1]
+        node = graph[node][i]
 
-        if cur_node.endswith('Z'):
+        if node.endswith('Z'):
             return steps
 
 
