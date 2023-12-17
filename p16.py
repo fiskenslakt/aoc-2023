@@ -1,17 +1,6 @@
 from collections import deque
 
-from aocd import data, submit
-
-# data = r'''.|...\....
-# |.-.\.....
-# .....|-...
-# ........|.
-# ..........
-# .........\
-# ..../.\\..
-# .-.-/..|..
-# .|....-|.\
-# ..//.|....'''
+from aocd import data
 
 DIRECTIONS = {'>': (1, 0), '<': (-1, 0), '^': (0, -1), 'v': (0, 1)}
 REFLECTIONS = {'/': {'^': '>', '>': '^', 'v': '<', '<': 'v'},
@@ -19,20 +8,11 @@ REFLECTIONS = {'/': {'^': '>', '>': '^', 'v': '<', '<': 'v'},
 
 
 def beam_simulation(start_x, start_y, start_d):
-    if start_d == '>':
-        queue = deque([(start_x - 1, start_y, start_d)])
-    elif start_d == 'v':
-        queue = deque([(start_x, start_y - 1, start_d)])
-    elif start_d == '<':
-        queue = deque([(start_x + 1, start_y, start_d)])
-    elif start_d == '^':
-        queue = deque([(start_x, start_y + 1, start_d)])
-    else:
-        raise ValueError('Invalid direction')
+    queue = deque([(start_x, start_y, start_d)])
 
     energized_tiles = set()
     seen = set()
-    # import pudb;pu.db
+
     while queue:
         n_beams = len(queue)
         for _ in range(n_beams):
@@ -90,23 +70,20 @@ contraption = {}
 
 for y, row in enumerate(data.splitlines()):
     for x, tile in enumerate(row):
-        # print(tile, end='')
         contraption[(x, y)] = tile
-    # print()
 
 tiles_width = x
 tiles_length = y
 
-energized_tiles = beam_simulation(0, 0, '>')
-print('Part 1:', len(energized_tiles))
+print('Part 1:', len(beam_simulation(-1, 0, '>')))
 
 best_configuration = 0
 for x in range(tiles_width):
-    best_configuration = max(best_configuration, len(beam_simulation(x, 0, 'v')))
-    best_configuration = max(best_configuration, len(beam_simulation(x, tiles_length, '^')))
+    best_configuration = max(best_configuration, len(beam_simulation(x, -1, 'v')))
+    best_configuration = max(best_configuration, len(beam_simulation(x, tiles_length + 1, '^')))
 
 for y in range(tiles_length):
-    best_configuration = max(best_configuration, len(beam_simulation(0, y, '>')))
-    best_configuration = max(best_configuration, len(beam_simulation(tiles_width, y, '<')))
+    best_configuration = max(best_configuration, len(beam_simulation(-1, y, '>')))
+    best_configuration = max(best_configuration, len(beam_simulation(tiles_width + 1, y, '<')))
 
 print('Part 2:', best_configuration)
