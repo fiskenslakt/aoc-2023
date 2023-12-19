@@ -8,8 +8,8 @@ from aocd import data
 class Rule:
     def __init__(self, rule):
         self.value = rule
-        self.condition = '>' in rule or '<' in rule
-        if self.condition:
+        self.is_condition = '>' in rule or '<' in rule
+        if self.is_condition:
             category, op, n = re.search(r'(.)([<>])(\d+)', rule).groups()
             self.category = category
             self.n = int(n)
@@ -17,9 +17,6 @@ class Rule:
                 self.op = gt
             else:
                 self.op = lt
-
-    # def __repr__(self):
-    #     return self.value
 
 
 class RuleTree:
@@ -39,7 +36,7 @@ class RuleTree:
 def traverse_workflow(part, rule):
     xmas = dict(zip('xmas', map(int, re.findall(r'\d+', part))))
 
-    if not rule.condition:
+    if not rule.is_condition:
         return rule.value
 
     if rule.op(xmas[rule.category], rule.n):
@@ -57,7 +54,7 @@ def sort_part(part, workflow_name):
 
 def _findall_accepted(rule, xmas):
     accepted = 0
-    if not rule.condition:
+    if not rule.is_condition:
         return findall_accepted(rule.value)
 
     if rule.op is gt:
@@ -67,7 +64,7 @@ def _findall_accepted(rule, xmas):
 
         false = xmas.copy()
         false[rule.category] = range(false[rule.category].start, min(false[rule.category].stop, rule.n+1))
-        if rule.false.condition:
+        if rule.false.is_condition:
             accepted += _findall_accepted(rule.false, false)
         else:
             accepted += findall_accepted(rule.false.value, false)
@@ -78,7 +75,7 @@ def _findall_accepted(rule, xmas):
 
         false = xmas.copy()
         false[rule.category] = range(max(false[rule.category].start, rule.n), false[rule.category].stop)
-        if rule.false.condition:
+        if rule.false.is_condition:
             accepted += _findall_accepted(rule.false, false)
         else:
             accepted += findall_accepted(rule.false.value, false)
@@ -88,7 +85,6 @@ def _findall_accepted(rule, xmas):
 
 def findall_accepted(workflow_name, xmas):
     if workflow_name == 'A':
-        # return prod([r.stop - r.start for r in xmas.values()])
         return prod(map(len, xmas.values()))
     elif workflow_name == 'R':
         return 0
@@ -109,10 +105,6 @@ for part in parts.splitlines():
         rating_numbers_total += sum(map(int, re.findall(r'\d+', part)))
 
 print('Part 1:', rating_numbers_total)
-# import pudb;pu.db
+
 xmas = dict(zip('xmas', [range(1, 4001)]*4))
-p2 = findall_accepted('in', xmas)
-# submit(p2)
-print('Part 2:', p2)
-# print(f'{abs(p2 - 167409079868000):,}')
-# assert p2 == 167409079868000
+print('Part 2:', findall_accepted('in', xmas))
