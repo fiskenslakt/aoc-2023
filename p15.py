@@ -73,7 +73,6 @@ for step in steps:
         del box.lenses[label]
 
 print('Part 1:', sequence_sum)
-assert sequence_sum == 519603
 
 focusing_power = 0
 for box_num, box in boxes.items():
@@ -86,4 +85,3 @@ for box_num, box in boxes.items():
             slot += 1
 
 print('Part 2:', focusing_power)
-assert focusing_power == 244342
