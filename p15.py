@@ -1,9 +1,7 @@
 import re
-from collections import defaultdict, deque
+from collections import defaultdict
 
-from aocd import data, submit
-
-# data = '''rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7'''
+from aocd import data
 
 
 class Lens:
@@ -13,23 +11,11 @@ class Lens:
         self.prev = None
         self.next = None
 
-    def __repr__(self):
-        return f'Lens({self.label}, {self.focal_length})'
-
 
 class Box:
     def __init__(self):
         self.lenses = {}
         self.head = None
-
-    def __repr__(self):
-        lenses = []
-        cur_lens = self.head
-        while cur_lens:
-            lenses.append(cur_lens)
-            cur_lens = cur_lens.next
-
-        return ' '.join(f'[{lens.label} {lens.focal_length}]' for lens in lenses)
 
 
 def get_hash(s):
@@ -47,7 +33,7 @@ step_pattern = re.compile(r'(.+)(=|-)(\d+)?')
 
 sequence_sum = 0
 boxes = defaultdict(Box)
-# import pudb;pu.db
+
 for step in steps:
     sequence_sum += get_hash(step)
 
@@ -87,7 +73,7 @@ for step in steps:
         del box.lenses[label]
 
 print('Part 1:', sequence_sum)
-# assert sequence_sum == 519603
+assert sequence_sum == 519603
 
 focusing_power = 0
 for box_num, box in boxes.items():
@@ -99,4 +85,5 @@ for box_num, box in boxes.items():
             cur_lens = cur_lens.next
             slot += 1
 
-submit(focusing_power)
+print('Part 2:', focusing_power)
+assert focusing_power == 244342
