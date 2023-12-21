@@ -1,14 +1,10 @@
 import re
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
+from itertools import count
+from math import lcm
 
-from aocd import data, submit
-
-# data = '''broadcaster -> a, b, c
-# %a -> b
-# %b -> c
-# %c -> inv
-# &inv -> a'''
+from aocd import data
 
 
 @dataclass
@@ -20,8 +16,6 @@ class Module:
 
 @dataclass
 class FlipFlop(Module):
-    # False = "off"
-    # True = "on"
     state: bool = False
     mtype: str = 'flipflop'
 
@@ -74,21 +68,27 @@ for d, sources in input_map.items():
         for s in sources:
             module.input_modules[s] = 'low'
 
+rx_source = input_map['rx'][0]
+rx_conjunctions = {}
+for con in input_map[rx_source]:
+    rx_conjunctions[con] = 0
+
 sent_signals = {'low': 0, 'high': 0}
-# import pudb;pu.db
 signal_queue = deque()
-for button_press in range(1_000):
+for button_press in count(start=1):
     sent_signals['low'] += 1
     for d in modules['broadcaster'].destinations:
         signal_queue.append((d, 'low', 'broadcaster'))
 
     while signal_queue:
         module_name, signal, source = signal_queue.popleft()
+
         if module_name in modules:
             module = modules[module_name]
         else:
             module = Module(module_name)
             modules[module.name] = module
+
         sent_signals[signal] += 1
 
         if module.mtype == 'flipflop':
@@ -105,5 +105,16 @@ for button_press in range(1_000):
             for d in modules[module.name].destinations:
                 signal_queue.append((d, module.output_signal(), module.name))
 
-print(sent_signals)
-submit(sent_signals['low'] * sent_signals['high'])
+        if module.name in rx_conjunctions:
+            presses = rx_conjunctions[module.name]
+            if presses == 0 and module.output_signal() == 'high':
+                rx_conjunctions[module.name] = button_press
+
+    if button_press == 1_000:
+        pulses = sent_signals['low'] * sent_signals['high']
+
+    if button_press >= 1_000 and all(presses > 0 for presses in rx_conjunctions.values()):
+        break
+
+print('Part 1:', pulses)
+print('Part 2:', lcm(*rx_conjunctions.values()))
